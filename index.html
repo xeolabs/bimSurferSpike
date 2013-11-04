@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>SceneJS First Example</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+    <style>
+        body {
+            margin: 0;
+            -moz-user-select: -moz-none;
+            -khtml-user-select: none;
+            -webkit-user-select: none;
+        }
+    </style>
+
+    <script src="lib/scenejs/scenejs.js"></script>
+
+    <script src="lib/jquery-1.8.3.min.js"></script>
+
+    <canvas id="scenejsCanvas" width="600px" height="600px"></canvas>
+
+</head>
+<body>
+
+<script>
+
+    /*-----------------------------------------------------------------------------------------------
+
+     1. Loads a shell JSON,
+     2. Builds SceneJS scene from that
+     3. Loads model JSON
+     4. Finds node in scene having ID "sun-light"
+     5. Creates child node of that, using model JSON
+
+     Note:
+
+     I tweaked JSON for (1) to make it SceneJS 3.1 compatible (see ./README.txt for details).
+
+     Model JSON for (3) is just a simple test object. The output from JsonGeometrySerializer is
+     of course not SceneJS format.
+
+     */
+
+    // Point SceneJS to the bundled plugins
+    SceneJS.setConfigs({
+        pluginPath:"lib/scenejs/plugins"
+    });
+
+    // Load shell
+    getJSON("data/shells/shell2.json",
+            function (shell) {
+
+                // Create scene graph from shell
+                var scene = SceneJS.createScene(shell);
+
+                // Load model JSON
+                getJSON("data/geometry/testObject.json",
+                        function (model) {
+
+                            // Get the "sun-light" node
+                            scene.getNode("sun-light",
+                                    function (node) {
+
+                                        // Append child node to that, created from the model JSON
+                                        node.addNode(model);
+                                    });
+                        });
+            });
+
+    // Loads JSON file, returns JSON via callback
+    function getJSON(url, ok) {
+        console.log("Loading: " + url + "...");
+        $.ajax({
+            type:'GET', url:url, dataType:'json',
+            success:function (json) {
+                console.log("Loaded: " + url);
+                ok(json);
+            },
+            error:function (err) {
+                console.error("Error: " + err.statusText);
+            }
+        });
+    }
+
+</script>
+</body>
+</html>
